@@ -4,8 +4,15 @@ from selenium.webdriver.common.by import By
 from data import obter_dados_do_csv
 from selenium import webdriver
 from tqdm import tqdm
+import hashlib
+import secrets
 import time
 import csv
+
+def gerar_hash_aleatorio():
+    string_aleatoria = secrets.token_urlsafe(16)  
+    sha256_hash = hashlib.sha256(string_aleatoria.encode()).hexdigest()
+    return sha256_hash
 
 def salvar_resultados_em_csv(resultados, nome_arquivo):
     with open(nome_arquivo, 'w', newline='', encoding='utf-8') as arquivo_csv:
@@ -15,9 +22,6 @@ def salvar_resultados_em_csv(resultados, nome_arquivo):
 options = webdriver.ChromeOptions()
 options.add_argument("--headless")
 
-chrome_service = ChromeService(ChromeDriverManager().install())
-driver = webdriver.Chrome(service=chrome_service, options=options)
-
 dados_csv = obter_dados_do_csv()
 resultados = []
 
@@ -25,6 +29,10 @@ barra_progresso = tqdm(total=len(dados_csv), desc='Processando', position=0, lea
 
 for i in dados_csv:
     time.sleep(2)
+
+    chrome_service = ChromeService(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=chrome_service, options=options)
+
     driver.get(f"https://www.google.com.br/maps/search/{i[0]}/@-23.4668482,-46.6746935,15z/data=!3m1!4b1?entry=ttu")
     elementos = driver.find_elements(By.CLASS_NAME, "UsdlK")
 
@@ -32,9 +40,10 @@ for i in dados_csv:
         resultados.append([elemento.text])
 
     barra_progresso.update(1)
+    driver.quit()
 
 barra_progresso.close()
 
-salvar_resultados_em_csv(resultados, 'resultados.csv')
+hash_aleatorio = gerar_hash_aleatorio()
 
-driver.quit()
+salvar_resultados_em_csv(resultados, f'resultados-{hash_aleatorio}.csv')
