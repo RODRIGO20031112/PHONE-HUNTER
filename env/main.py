@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from data import obter_dados_do_csv
 from selenium import webdriver
 from tqdm import tqdm
+import pandas as pd
 import hashlib
 import secrets
 import time
@@ -17,6 +18,9 @@ def gerar_hash_aleatorio():
 def salvar_resultados_em_csv(resultados, nome_arquivo):
     with open(nome_arquivo, 'w', newline='', encoding='utf-8') as arquivo_csv:
         writer = csv.writer(arquivo_csv)
+        
+        writer.writerow(['numero_celular'])
+        
         writer.writerows(resultados)
 
 options = webdriver.ChromeOptions()
@@ -47,3 +51,13 @@ barra_progresso.close()
 hash_aleatorio = gerar_hash_aleatorio()
 
 salvar_resultados_em_csv(resultados, f'resultados-{hash_aleatorio}.csv')
+
+df = pd.read_csv(f'resultados-{hash_aleatorio}.csv')
+
+df = df[~df['numero_celular'].str.contains('0800')]
+
+df['numero_celular'] = df['numero_celular'].replace({'\(': '', '\)': '', '-': '', ' ': ''}, regex=True)
+
+df['numero_celular'] = '55' + df['numero_celular']
+
+df.to_csv(f'resultados-{hash_aleatorio}.csv', index=False)

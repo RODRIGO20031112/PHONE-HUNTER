@@ -55,6 +55,12 @@ Escolha um arquivo CSV contendo as palavras chaves
 Existe um exemplo no rep env/data
 ```
 
+## Para Buildar
+
+```bash
+pyinstaller --onefile seu_script.py
+```
+
 Você pode usar ferramenta de inteligenciâ artificial para adquirir palavras que melhor se encaixam ao seus leads.
 
 ## 📫 Contribuindo para PHONE HUNTER
